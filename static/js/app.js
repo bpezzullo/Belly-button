@@ -8,8 +8,51 @@ function init() {
   console.log(listIds);
   document.getElementById("selDataset").innerHTML = generatetxt(listIds);
   //panel-body
-  });
+  
 
+  var otuIds = jsdata.samples[0].otu_ids;
+  var otuValues = jsdata.samples[0].sample_values;
+  var otuLabels = jsdata.samples[0].otu_labels;
+  var trace1 = 
+    {
+      labels: otuIds.slice(0,10).reverse(),
+      values: otuValues.slice(0,10).reverse(),
+      type: 'pie'
+
+    };
+
+  var layoutp = {
+    title: "Top 10 OTUs for selected Individual",
+    height: 400,
+    width: 500
+    };
+
+  var datapie = [trace1];
+    
+  Plotly.newPlot('bar', datapie,layoutp);
+
+  var trace2 = 
+  {
+    x: otuIds,
+    y: otuValues,
+    text: otuLabels,
+    marker: {
+      color: otuIds,
+      size: otuValues},
+    mode: 'markers'
+  };
+
+var layoutb = {
+  title: "Bubble Chart",
+  yaxis: { title: "Sample value"},
+  xaxis: { title: "OTU ID"}
+  };
+
+var databub = [trace2];
+
+  
+Plotly.newPlot('bubble', databub,layoutb);
+});
 }
 
 /**
@@ -20,7 +63,6 @@ function buildPlot(value) {
   var otuReferId;
   var xlabels = [];
   var y= [];
-
   //Fetch the JSON data and console log it
 
   d3.json("./data/samples.json").then(function(jsdata) {
@@ -29,49 +71,20 @@ function buildPlot(value) {
 
      if (otuReferId === -1 ) { otuReferId = 0} // set to first patient id.
 
-    var otuIds = jsdata.samples[otuReferId].otu_ids.slice(0,10).reverse();
-    var otuValues = jsdata.samples[otuReferId].sample_values.slice(0,10).reverse();
-    var otuLabels = jsdata.samples[otuReferId].otu_labels.slice(0,10).reverse();
-    var trace1 = 
-      {
-        labels: otuIds,
-        values: otuValues,
-        //text: otuLabels,
-        //mode: 'markers',
-        type: 'pie'
-        //orientation: 'h'
-      };
-
-    var layoutp = {
-      title: "Top 10 OTUs for selected Individual",
-      height: 400,
-      width: 500
-      };
-
-    var datapie = [trace1];
+    var otuIds = jsdata.samples[otuReferId].otu_ids;
+    var otuValues = jsdata.samples[otuReferId].sample_values;
+    var otuLabels = jsdata.samples[otuReferId].otu_labels;
       
-    Plotly.newPlot('bar', datapie,layoutp);
+    Plotly.restyle('bar', 'labels', [otuIds.slice(0,10).reverse()]);
+    Plotly.restyle('bar', 'values', [otuValues.slice(0,10).reverse()]);
 
-    var trace2 = 
-    {
-      x: jsdata.samples[otuReferId].otu_ids,
-      y: jsdata.samples[otuReferId].sample_values,
-      text: jsdata.samples[otuReferId].otu_labels,
-      marker: {
-        color: jsdata.samples[otuReferId].otu_ids,
-        size: jsdata.samples[otuReferId].sample_values},
-      mode: 'markers'
-    };
 
-  var layoutb = {
-    title: "Bubble Chart",
-    yaxis: { title: "Sample value"},
-    xaxis: { title: "OTU ID"}
-    };
-
-  var databub = [trace2];
-    
-  Plotly.newPlot('bubble', databub,layoutb);
+    // redraw bubble chart for new subject
+    Plotly.restyle('bubble', 'x', [otuIds] );
+    Plotly.restyle('bubble', 'y', [otuValues] );
+    Plotly.restyle('bubble', 'text', [otuLabels] );
+    Plotly.restyle('bubble', 'color', [otuIds] );
+    Plotly.restyle('bubble', 'size', [otuValues] );
 
   });
 }
